@@ -1,43 +1,40 @@
 #include <iostream>
+#include <vector>
 #include "map.h"
 #include "procedmapgen.h"
-// #include "filemaploader.h" // Decomentează dacă vrei să testezi încărcarea din fișier
+#include "Agents/drone.h"
+#include "Agents/robot.h"
+#include "Agents/scooter.h"
 
 using namespace std;
 
 int main() {
-    // 1. Configurare parametri de test
-    int rows = 15;      // Înălțimea hărții
-    int cols = 20;      // Lățimea hărții
-    int stations = 3;   // Număr stații de încărcare (S)
-    int clients = 5;    // Număr clienți (D)
+    cout << "=== Testare Flota Agenti ===" << endl;
 
-    cout << "=== Start Test Harta HiveMind ===" << endl;
+    Map cityMap(10, 10);
+    ProceduralMapGenerator* pGen = new ProceduralMapGenerator(0.1f);
+    cityMap.loadMap(pGen, 2, 2);
 
-    // 2. Creăm obiectul Harta (gol momentan)
-    Map cityMap(rows, cols);
+    pair<int, int> start = cityMap.getBaseLocation();
 
-    // 3. Alegem Strategia: Generare Procedurală (Random)
-    // 0.2f înseamnă densitate de ziduri 20%
-    ProceduralMapGenerator* pGen = new ProceduralMapGenerator(0.2f);
+    vector<Agent*> fleet;
     
-    // 4. Încărcăm harta (asta apelează intern generate + isValid)
-    // Dacă prima generare e invalidă, va încerca din nou automat
-    cout << "[INFO] Se genereaza si valideaza harta..." << endl;
-    cityMap.loadMap(pGen, stations, clients);
+    fleet.push_back(new Drone(1, start));
+    fleet.push_back(new Robot(2, start));
+    fleet.push_back(new Scooter(3, start));
 
-    // 5. Afișăm harta în consolă
-    cityMap.printMap();
+    for(auto* agent : fleet) {
+        cout << "\n[Agent " << agent->getId() << "]: " << agent->getType() << endl;
+        cout << "   - Simbol: " << agent->getSymbol() << endl;
+        cout << "   - Pozitie: (" << agent->getPosition().first << ", " 
+             << agent->getPosition().second << ")" << endl;
+        cout << "   - Zboara peste ziduri? " << (agent->canPassWall() ? "DA" : "NU") << endl;
+    }
 
-    // 6. Curățăm memoria
+    for(auto* agent : fleet) delete agent;
     delete pGen;
 
-    cout << "=== Test Finalizat ===" << endl;
-    
-    // Ținem consola deschisă ca să poți vedea rezultatul
-    cout << "Scrie orice litera si apasa Enter pentru a inchide: ";
-    char temp;
-    cin >> temp;
-    
+    cout << "\n=== Test Finalizat ===" << endl;
+    char temp; cin >> temp;
     return 0;
 }
