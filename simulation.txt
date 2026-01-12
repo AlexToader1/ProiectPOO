@@ -1,0 +1,8 @@
+=== RAPORT SIMULARE HIVEMIND ===
+Pachete Livrate la Timp: 43
+Pachete Intarziate: 4
+Pachete Nelivrate: 3
+Agenti Pierduti: 3
+-----------------------------
+PROFIT FINAL: 10267 credite
+=============================

@@ -5,6 +5,8 @@
 Map::Map(int r, int c) : rows(r), cols(c) {
 }
 
+// STRATEGY PATTERN: Primim un "generator" abstract si il folosim fara sa stim
+// daca e procedural sau din fisier. Comportamentul se schimba la runtime.
 void Map::loadMap(IMapGenerator* generator, int numStations, int numClients) {
     bool valid = false;
     int attempts = 0;
@@ -59,6 +61,9 @@ bool Map::isValid() {
         }
     }
 
+    // BFS: Algoritm de parcurgere. 
+    // Pornim de la baza si "inundam" harta ca sa vedem daca putem ajunge la
+    // toti clientii si toate statiile. Daca raman tinte neatinse, harta e invalida.
     std::vector<std::vector<bool>> visited(rows, std::vector<bool>(cols, false));
     std::queue<std::pair<int, int>> q;
     

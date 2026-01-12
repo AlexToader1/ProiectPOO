@@ -1,58 +1,53 @@
 #include "agent.h"
 #include <iostream>
 
-Agent::Agent(int id, std::pair<int, int> startPos, const Stats& stats)
-    : id(id), position(startPos), currentBattery(stats.maxBattery), state(IDLE), stats(stats) {}
+Agent::Agent(int id, std::pair<int, int> startPos, AgentStats stats)
+    : id(id), position(startPos), stats(stats) {
+    this->currentBattery = stats.maxBattery;
+    this->state = IDLE;
+}
 
-void Agent::updateState() {
+void Agent::update() {
     if (state == DEAD) return;
 
-    switch (state)
-    {
-    case MOVING:
+    if (state == MOVING) {
         move();
-        break;
-    case CHARGING:
-        charge();
-        break;
-    case IDLE:
-        break;
-    default:
-        break;
+        currentBattery -= stats.batteryDrain;
+        if (currentBattery <= 0) {
+            currentBattery = 0;
+            state = DEAD;
+            std::cout << "!!! Agent " << id << " a murit (Baterie 0) !!!\n";
+        }
     }
-
-    if (currentBattery <= 0) {
-        state = DEAD;
-        std::cout << "Agent " << stats.type << " has died due to battery depletion.\n";
+    else if (state == CHARGING) {
+        charge();
     }
 }
 
 void Agent::move() {
-    if (currPath.empty()) {
+    if (currentPath.empty()) {
         state = IDLE;
         return;
     }
-
-    for(int step = 0; step < stats.speed && !currPath.empty(); ++step) {
-        position = currPath.front();
-        currPath.erase(currPath.begin());
+    for (int i = 0; i < stats.speed && !currentPath.empty(); ++i) {
+        position = currentPath.front();
+        currentPath.erase(currentPath.begin());
     }
-
-    currentBattery -= stats.batteryConsumption;
+    if (currentPath.empty()) state = IDLE;
 }
 
 void Agent::charge() {
-    currentBattery += stats.capacity;
+    float chargeAmount = stats.maxBattery * 0.25f; // 25% pe tick
+    currentBattery += chargeAmount;
+    
     if (currentBattery >= stats.maxBattery) {
         currentBattery = stats.maxBattery;
         state = IDLE;
+        std::cout << "Agent " << id << " incarcat 100%.\n";
     }
 }
 
 void Agent::setPath(const std::vector<std::pair<int, int>>& path) {
-    currPath = path;
-    if (!currPath.empty()) {
-        state = MOVING;
-    }
+    currentPath = path;
+    if (!currentPath.empty()) state = MOVING;
 }
-
